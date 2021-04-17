@@ -168,13 +168,13 @@ int main(void) {
 	Ustawienie PORTA tak aby 4 kolumny były wyjściami 
 	oraz 4 rzędy wejściami.
 	*/
-    DDRA = 0xF0;  
+	DDRA = 0xF0;  
 	
 	/*
 	Ustawienie całego portu C i B jako portu wyjściowego
 	*/  
-    DDRC = 0xFF;   
-    DDRB = 0xFF;
+	DDRC = 0xFF;   
+	DDRB = 0xFF;
 
 	/*
 	Ustawienie wejść w stan wysoki i wyjść w stan niski.
