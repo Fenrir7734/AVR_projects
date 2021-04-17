@@ -209,7 +209,7 @@ int main(void) {
 	*/
 	sei();
 
-    while(1) {
+	while(1) {
              
 		/*
 		Timer będzie generował żądanie przerwania co 10ms.
