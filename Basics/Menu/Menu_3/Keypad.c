@@ -1,6 +1,4 @@
-#include <avr/io.h>                //biblioteka do obsługi wejścia/wyjścia
-#include <avr/interrupt.h>		   //biblioteka do obsługi przerwań
-#include <util/delay.h>		//biblioteka zawierająca funkcje opóźniające
+#include "Keypad.h"
 
 /*
 Zmienna globalna która będzie ustawiana
@@ -18,35 +16,19 @@ TIFR flaga OCF0.
 ISR(TIMER0_COMP_vect) {
     /*
     Jeżeli wystąpiło przerwanie wartość zmiennej
-    state jest ustwiana na 1
+    state jest ustawiana na 1
     */
     state = 1;
 }
 
 /*
-Klawiatura 4x4 podzielona jest na 4 kolumny (4 starsze
-bity PORTA) i 4 rzędy (4 młodsze bity). Aby odczytać
-stan klawiatury należy na kolejne kolumny podawać
-stan niski tym samym "uaktywniając je". Jeżeli jakiś
-przycisk znajdujący się w uaktywnionej kolumnie jest
-wciśnięty wtedy stan rzędu w którym się znajduje 
-zmieni się na niski. Kod przycisku składa się więc
-z bitu kolumny i rzędu w którym znajduje się ten przycisk.
-Jeżeli żaden klawisz nie jest wciśnięty i żadna kolumna
-aktywna to cały port do którego podłączona jest klawiatura
-znajduje sie w stanie wysokim. Sprawdzając stan
-klawiatury można również aktywować kolejne rzędy
-a odczytywać kolumny, rezultat będzie taki sam.
-
 Celem poniżej funkcji jest sprawdzenie  aktualnego 
-stanu  klawiatury i zwrócenie numeru naciściętego 
+stanu  klawiatury i zwrócenie numeru naciśniętego  
 klawisza. Numery zawierają się w przedziale od
 1 do 16. Jeżeli żaden klawisz nie jest naciśnięty
-funkcja zwróci wartość 0. Dodatkowo funkcja zapisuje
-kod wciśniętego klawisza do rejestru PORTC.
-W celu odczytania stanu klawiatury uaktywniam 
-kolejne kolumny a odczytuje stan poszczególnych
-rzędów.
+funkcja zwróci wartość 0. W celu odczytania stanu 
+klawiatury uaktywniam kolejne kolumny a odczytuje 
+stan poszczególnych rzędów.
 */
 uint8_t keypad() {
     
@@ -77,8 +59,7 @@ uint8_t keypad() {
         jedynie 2 bity w zmiennej key będą w stanie
         wysokim. Głównym powodem tej negacji jest
         ułatwienie mi napisania dwóch kolejnych
-        warunków. Drugi powód to bardziej przejrzysty
-        sposób wyświetlenia kodu przycisku na PORTC.
+        warunków.
         */
         key = PINA ^ 0xFF;	
 
@@ -94,14 +75,9 @@ uint8_t keypad() {
         że żaden przycisk w tej kolumnie nie jest
         aktywny a więc główna pętla tej funkcji przejdzie
         od razu do sprawdzania kolejnej kolumny.
-        Dzięki takiemu rozwiązaniu instrukcje w ciele warunku if
-        wykonają się maksymalnie jeden raz jeżeli 
-        jakiś przycisk jest rzeczywiście wciśnięty. Pozwala
-        to zaszczędzić czas poprzez pozbycie się niepotrzebnych
-        operacji.
         */
         if(key & 0x0F) {
-            
+
             /*
             Pętla której zadaniem jest ustalenie który
             rząd jest aktywny.
@@ -111,19 +87,13 @@ uint8_t keypad() {
                 /*
                 Warunek sprawdza czy bit o numerze j
                 znajduje się w stanie wysokim czyli
-                czy odpowiedni rzad jest aktywny.
+                czy odpowiedni rząd jest aktywny.
                 */
-                if(key & _BV(j)) {
-                
-                    /*
-                    Wpisuje kod naciśniętego przycisku do PORTC
-                    */							
-                    PORTC = key;
+                if(key & _BV(j)) {					
 
                     /*
-                    Poniższa instrukcja return zwraca numer 
-                    naciśniętego przycisku. Obliczenia:
-                    
+                    Obliczenie numeru naciśniętego przycisku.
+                    Obliczenia:
                     przesunięcie + numer_kolumny + 1
 
                     Kolumny i rzędy numeruję od 0 do 3.
@@ -141,14 +111,14 @@ uint8_t keypad() {
                     Dla przykładu jeżeli przycisk znajduje się w rzędzie 
                     nr 2 kolumnie nr 3 to należy przeskoczyć 8 poprzednich
                     przycisków tak aby "wskazać" na pierwszy przycisk w 2
-                    rzędzie a nasępnie dodać do tego numer kolumny w której
+                    rzędzie a następnie dodać do tego numer kolumny w której
                     znajduje się przycisk. Na koniec dodaję do wyniku 1 aby
                     uzyskać numer przycisku z przedziału od 1 do 16 zamiast 
                     od 1 do 15. Czyli::
                     (2 * 4) + (7 - 4) + 1 = 12
                     */
-                    return (j * 4) + (i - 4) + 1;			
-
+                    key = (j * 4) + (i - 4) + 1;
+                    return key;			
                 }
             }
         }
@@ -161,38 +131,22 @@ uint8_t keypad() {
     return 0;
 }
 
-
-int main(void) {
-    
-    /*
-    Ustawienie PORTA tak aby 4 kolumny były wyjściami 
-    oraz 4 rzędy wejściami.
-    */
-    DDRA = 0xF0;  
-    
-    /*
-    Ustawienie całego portu C i B jako portu wyjściowego
-    */  
-    DDRC = 0xFF;   
-    DDRB = 0xFF;
-
-    /*
-    Ustawienie wejść w stan wysoki i wyjść w stan niski.
-    */
-    PORTA = 0x0F;
-
+/*
+Inicjalizacja timera i przerwań.
+*/
+void init_interrupts() {
     /*
     Ustawienie timera w tryb CTC oraz źródła sygnału
-    taktuającego na sygnał wewnętrzny wraz z 
+    taktującego na sygnał wewnętrzny wraz z 
     preskalerem 256
     */
     TCCR0 |= _BV(CS02) | _BV(WGM01); 
 
     /*
-    Uaktywnienie przerwań w timer0. Ustawienei generowania
+    Uaktywnienie przerwań w timer0. Ustawienie generowania
     żądania przerwania na Compare Match.
     */
-    TIMSK |= _BV(OCIE0);			 
+    TIMSK |= _BV(OCIE0);
 
     /*
     Ustawienie wartości rejestru OCR0.
@@ -200,33 +154,20 @@ int main(void) {
     1MHz/256 = 3906Hz
     1/3906Hz = 256us
     10ms/256us = 39
-    39 - 1 = 38 	<- ponieważ liczymy od 0
+    39 - 1 = 38     <- ponieważ liczymy od 0
     */
-    OCR0 = 38;	
+    OCR0 = 38;
 
     /*
-    Ustawienie globalnej flagi zezwolanie na przerwanie.
+    Ustawienie globalnej flagi zezwolenie na przerwanie.
     */
     sei();
+}
 
-    while(1) {
-             
-        /*
-        Timer będzie generował żądanie przerwania co 10ms.
-        Za każdym razem zostanie wywołana procedura 
-        obsługi przerwania która ustawi wartość zmiennej
-        state na 1.Po przywróceniu normalnego przepływu
-        sterowania, program wejdzie w blok tej instrukcji
-        warunkowej i rozpocznie wykonywanie funkcji keypad().
-        Wartość zwrócona przez tą funkcje zostanie zapisana
-        w rejestrze PORTB a zmienna state zostanie zresetowana
-        i pozostanie w stanie false do czasu wystąpienia kolejnego
-        przerwania. Skutkuje to tym że stan klawiatury jest 
-        sprawdzany co 10ms.
-        */
-         if(state) {
-            PORTB = keypad();
-            state = 0;
-        }
-    }
+/*
+Inicjalizacja klawiatury.
+*/
+void init_keypad() {
+    DDRA = 0xF0; 
+    PORTA = 0x0F;
 }
