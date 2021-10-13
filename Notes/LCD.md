@@ -1,0 +1,7 @@
+- W trybie 4-bitowym najpierw transferowana jest starsza, a potem młodsza tetrada.
+- Sygnał RW określa typ operacji (odczyt/zapis). Można tą linię podłączyć na stałę z masą ponieważ zazwyczaj i tak tylko zapisujemy dane do LCD. Takie rozwiązanie ma jednak swoje wady - nie jest możliwe w tej sytuacji odczytywanie sygnału zajętości modułu (Budy Flag). Powoduje to że pomiedzy kolejnymi zapisami do modułu musimy stosowac opóźnienia dobrane na najwolniejszą możliwą okoliczność. 
+- Sterowniki LCD zawierają w sobie, niezależnie od typu użytej matrycy, 80 bajtów pamieci DDRAM.
+- Dla matrycy 16x2 adres pierwszej linii zaczynaja się od 0x00 do 0x0f, adres drugiej linii od 0x40 do 0x4f
+- Układ HD44780 wyposażony jest w 64 bajty pamieci CGRAM (Character generator RAM) która moze przechowywac mapy bitowe 8 znaków o matrycy 5x8 pikseli lub 4 znaków o matrycy 5x10 pikseli.
+- Dostęp do pamieci CGRAM możliwy jest dzięki wysłaniu polecenia ustawiającego adres zapisu/odczytu pamieci CGRAM. Po jego wysłaniu wszystkie operacje zapisu i odczytu dotyczą tej pamimeci, a nie pamimęci DDRAM. Aby wrócić do adresowania pamieci DDRAM, nalezy wybrać jej adres lub dokonać operacji wymającej przesuniecia kursora.
+- Pamięć CGRAM jest pamiecia ulotną, po ponownym włączeniu zasialnia definicje znaków muszą być ponownie przesłane przez procesor.
