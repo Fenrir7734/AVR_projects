@@ -42,3 +42,46 @@
 - `PORTA` - rejestr komunikacyjny - do zapisu
 - `PINA` - rejestr komunikacyjny - tylko do odczytu, służy do odczytywania stanu portu lub śledzi stan `PORTA` jeżeli jest on skonfigurowany jako port wyjściowy
 - `DDRA` - rejestr konfiguracyjny - Po resecie wszystkie rejestry są wyzerowane (0x00) czyli domyślnie PORTA jest portem wejściowym
+
+## Liczniki - funkcje obsługi przerwań
+
+| Przepełnienie | Porównanie | Rejestracja impulsów |
+| :-----------: | :--------: | :------------------: |
+| `TIMER0_OVF_vect` | `TIMER0_COMP_vect` | |
+| `TIMER1_OVF_vect` | `TIMER1_COMPA_vect`  `TIMER1_COMPB_vect` | `TIMER1_CAPT_vect`|
+| `TIMER2_OVF_vect` | `TIMER2_COMP_vect` | |
+
+## TCCR0
+
+| Mode | WGM01 | WGM00 | Timer/Counter Mode of Operation |
+| :---: | :---: | :---: | :---: |
+| 0 | 0 | 0 | Normal |
+| 1 | 0 | 1 | PWM, Phase Correct |
+| 2 | 1 | 0 | CTC |
+| 3 | 1 | 1 | Fast PWM |
+
+| CS01 | CS01 | CS00 | Description |
+| 0 | 0 | 0 | No clock source (Timer/Counter stopped) |
+| 0 | 0 | 1 | clk/1 (No prescaling) |
+| 0 | 1 | 0 | clk/8 |
+| 0 | 1 | 1 | clk/64 |
+| 1 | 0 | 0 | clk/256 |
+| 1 | 0 | 1 | clk/1024 |
+| 1 | 1 | 0 | External clock source on T0 pin. Clock on falling edge |
+| 1 | 1 | 1 | External clock source on T0 pin. Clock on rising edge |
+
+## TIMSK
+
+| OCIE2 | TOIE2 | TICIE1 | OCIE1A | OCIE1B | TOIE1 | OCIE0 | TOIE0 |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+
+- Bit 1 - `OCIE0`: Timer/Counter0 Output Compare Match Interrupt Enable
+- Bit 0 - `TOIE0`: Timer/Counter0 Overflow Interrupt Enable
+
+## TIFR
+
+| OCF2 | TOV2 | ICF1 | OCF1A | OCF1B | TOV1 | OCF0 | TOV0 |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+
+- Bit 1 - `OCF0`: Output Compare Flag 0
+- Bit 0 - `TOV0`: Timer/Counter0 Overflow Flag
