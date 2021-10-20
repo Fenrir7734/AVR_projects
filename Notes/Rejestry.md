@@ -61,6 +61,7 @@
 | 3 | 1 | 1 | Fast PWM |
 
 | CS01 | CS01 | CS00 | Description |
+| :---: | :---: | :---: | :---: |
 | 0 | 0 | 0 | No clock source (Timer/Counter stopped) |
 | 0 | 0 | 1 | clk/1 (No prescaling) |
 | 0 | 1 | 0 | clk/8 |
