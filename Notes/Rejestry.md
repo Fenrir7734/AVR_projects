@@ -7,7 +7,7 @@
   - [PINx](#pinx)
   - [TCNTn](#tcntn)
   - [TCCRn](#tccrn)
-    - [OCRn](#ocrn)
+  - [OCRn](#ocrn)
   - [TIMSK](#timsk)
   - [TIFR](#tifr)
   - [MCUCR](#mcucr)
@@ -82,7 +82,7 @@ Rejestr licznikowy czyli aktualny stan licznika. Można zmodyfikować stan liczn
 | 1 | 1 | 0 | External clock source on T0 pin. Clock on falling edge |
 | 1 | 1 | 1 | External clock source on T0 pin. Clock on rising edge |
 
-### OCRn
+## OCRn
 `OCRn` - rejestr dla Compare Match którego zawartość porównywana jest z zawartością rejestru `TCNTn` pod warunkiem uruchomienia trybu CTC licznika.
 
 ## TIMSK
