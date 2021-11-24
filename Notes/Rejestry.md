@@ -168,7 +168,9 @@ Przerwanie jest to zdarzenie które powoduje zmianę kolejności wykonywania pro
 
 ## Jak uaktywnić przerwanie?
 - Globalna flaga zezwolenia na przerwanie musi być odblokowana: makro `sei()`
-- Flaga zezwolenia na przerwanie, które chcemy obsłużyć, musi byc odblokowana: ustawienie odpowiednich flag w rejestrze `GICR`
+- Flaga zezwolenia na przerwanie, które chcemy obsłużyć, musi byc ustawiona: 
+  - Przerwanie zewnętrzne: ustawienie odpowiednich flag w rejestrze `GICR` oraz sposobu wyzwalania w rejestrze `MCUCR` lub `MCUCSR`
+  - Przerwanie od timera: ustawienie odpowiednich flag w rejestrze `TIMSK`
 - Musi istnieć kod procedurt obsługi przerwania: Makro `ISR` z wektorem przerwania np. `ISR(INT0_vect) {}`
 - Musi wystąpić zdarzenie wywołujące przerwanie np. przejście z stanu wysokiego na stan niski
 
@@ -242,6 +244,8 @@ int main(void) {
     1/976.6Hz = 1.024ms
     100ms/1.024ms = 98
     98 - 1 = 97 	<- ponieważ liczymy od 0
+
+    Nie wiem czy to nie powinno być jeszcze podzielone przez 2
     */
     OCR0 = 97;
 
