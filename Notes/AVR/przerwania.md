@@ -35,7 +35,7 @@ Opcje:
 ## sei()/cli()
 Makrodefinicje te powodują odpowiednio odblokowanie i zablokowanie przerwań poprzez modyfikację flagi `I` w rejestrze `SREG`. Makrodefinicja `sei()` powinna byc wykorzystywana tylko raz w programie, do odblokowania przerwań. Nigdy nie powinna zajść sytuacja, w której konieczne byłoby wykorzystanie makrodefinicji `cli()`
 
-## vloatile 
+## volatile 
 Jest to słowo kluczone które służy do poinstruowania kompilatora, jak ma traktować podaną zmienną. Mówi mu że zmienna zadeklatowana z tym modyfikatorem może być modyfikowana w sposób niewynikający bezpośrednio z otaczającego kodu. Przy odwołaniu do tej zmiennej kompilator zawsze będzie pobierał jej wartość z pamięci unikając tworzenia jej kopii np. w rejestrach procesora. Dodanie modyfikatora `volatile` jest niezbędne w sytuacji, kiedy zmienna globalna jest modyfikowana w procedurze obsługi przerwania i jakiejkolwiek innej części kodu lub kiedy jej wartość może zmieniać się w sposób niewyninkający bezpośrednio z wykonywania kodu.
 
 Pomiędzy różnymi odczytami, wartości zmiennej mogą być różne, nawet jeśli nie były zmodyfikowane w kodzie. Zastosowanie `volatile` powstrzymuje kompilator optymalizujący przed pomijaniem zapisów do pamięci lub w wypadku kolejnych odczytów czy zapisów zmiennej przed zastąpieniem jej w skompilowanym kodzie przez stałą.
