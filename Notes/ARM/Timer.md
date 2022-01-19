@@ -76,9 +76,9 @@ uruchomienie timera w trybie przepełnienia, z częstotliwością inkrementacji 
 ```c
 int main() {
 
-  PMC_PCER = 1 << 3 | 1 << 14;
-  PIO_PER = 1 << 11;
-  PIO_OER = 1 << 11;
+  PMC_PCER = 1 << 3 | 1 << 12;
+  PIOB_PER = 1 << 11;
+  PIOB_OER = 1 << 11;
 
   TC0_CCR = 1 << 1;
   TC0_SR;
@@ -87,8 +87,8 @@ int main() {
 
   while (1) {
     if ((TC0_SR & (1 << 0)) != 0) {
-      PIO_OWER = 1 << 11;
-      PIO_ODSR ^= 1 << 11;
+      PIOB_OWER = 1 << 11;
+      PIOB_ODSR ^= 1 << 11;
     }
   }
 
@@ -117,8 +117,8 @@ Uruchomienie timera w trybie RC Compare w celu odliczenia interwałów czasu ró
 int main() {
   
   PMC_PCER = 1 << 3 | 1 << 12;
-  PIO_PER = 1 << 11;
-  PIO_OER = 1 << 11;
+  PIOB_PER = 1 << 11;
+  PIOB_OER = 1 << 11;
 
   TC0_CCR = 1 << 1;
   TC0_SR;
@@ -128,8 +128,8 @@ int main() {
 
   while(1) {
     if ((TC0_SR & 1 << 4) != 0) {
-      PIO_OWER = 1 << 11;
-      PIO_ODSR ^= 1 << 11;
+      PIOB_OWER = 1 << 11;
+      PIOB_ODSR ^= 1 << 11;
     }
   }
   
