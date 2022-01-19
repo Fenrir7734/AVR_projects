@@ -33,6 +33,17 @@
 - `ADC_IER` - rejestr umożliwiający aktywację przerwań od `ADC`
 - `ADC_IDR` - rejestr umożliwiający dezaktywację przerwań od `ADC`
 
+# Konfiguracja
+1. Nie trzeba aktywować zegara kontrolera ADC w rejestrze `PMC_PCER`, zegar ten jest zawsze aktywny.
+2. Zresetowanie kontrolera `ADC` poprzez ustawienie flagi `SWRST` w rejestrze `ADC_CR` -> `ADC_CR = 1 << 0`
+3. Aktywacja kanałów na których ma być konwersja -> `ADC_CHER = 1 << 5`
+4. Konfiguracja ADC ale nie wiem co te wartości robią -> `ADC_MR = (23<<ADC_MR_PRESCAL_BIT) | (2<<ADC_MR_STARTUP_BIT) | (1<<ADC_MR_SHTIM_BIT)`
+5. Wystartowanie `ADC` -> `ADC_CR = 1 << 1`
+6. Gdy konwersja dobiegnie końca w rejestrze `ADC_SR` zostanie ustawiona flaga `EOC5` (dla 5 kanału) a więc warunek -> `(ADC_SR & (1 << 5)) != 0` będzie `true` gdy konwersja dobiegnie końca.
+7. Odczytanie wartości po konwersji z rejestru `ADC_CDR5`, odczyt z tego rejestru czyście flagę `EOC5` w rejestrze `ADC_SR`. Wartość konwersji pozostanie w tym rejestrze do czasu zakończenia kolejnej konwersji.
+8. Aby rozpocząć kolejną konwersję należy ponownie wykonać instrukcję -> `ADC_CR = 1 << 1`, wystartowanie `ADC`
+
+
 ```c
 int main (){
 
