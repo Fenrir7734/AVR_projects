@@ -53,8 +53,8 @@ Miganie ekranem LCD przy naciśnięciu przycisku SW1 i SW2
 1. Numery pinów do których podłączone są przyciski SW1 i SW2 są zaznaczone na schemacie. SW1 - pin 70 (linia `PB24`), SW2 - pin 71 (linia `PB25`). LCD jest podłączone do pinu 65 (linia `PB20`). **Linie konfiguruje się według numeru linii a nie pinu**
 2. Aby mieć możliwość konfiguracji linii jako wyjścia należy załączyć zegar dla `PIOB` -> `PMC_PCER = 1 << 3`, gdzie 3 to numer bitu `PIOB`, str. 30 w dokumentacji
 3. Skonfigurowanie linii `PB24`, `PB25` i `PB20` jako linii I/O -> `PIOB_PER = 1 << 24 | 1 << 25 | 1 << 20` 
-4. Do linii `PB24` i `PB25` podłączone są przyciski więc chcemy żeby te linie były skonfigurowane jako wejścia -> `PIO_ODR = 1 << 24 | 1 << 25`. To chyba jest zbędne bo linie po resecie domyślnie są ustawione jako wejścia ale nie mam pewności więc lepiej to mimo wszystko ustawić ręcznie.
-5. Do linii `PB20` podłączony jest LCD którego ekranem mamy migać więc `PB20` musi być skonfigurowany jako wyjście -> `PIO_OER = 1 << 20`
+4. Do linii `PB24` i `PB25` podłączone są przyciski więc chcemy żeby te linie były skonfigurowane jako wejścia -> `PIOB_ODR = 1 << 24 | 1 << 25`. To chyba jest zbędne bo linie po resecie domyślnie są ustawione jako wejścia ale nie mam pewności więc lepiej to mimo wszystko ustawić ręcznie.
+5. Do linii `PB20` podłączony jest LCD którego ekranem mamy migać więc `PB20` musi być skonfigurowany jako wyjście -> `PIOB_OER = 1 << 20`
 6. **Koniec konfiguracji, teraz możemy nasłuchiwać w pętli naciśnięć przycisków**
 7. Odczytanie wartości linii do których podłączone są przyciski odbywa się poprzez rejestr `PIOB_PDSR`. Naciśnięcie przycisku SW1 jest sygnalizowane stanem wysokim na bicie nr 24 w `PIOB_PDSR` a więc warunek `PIOB_PDSR & (1 << 24)` będzie `true` gdy przycisk zostanie naciśnięty. Analogicznie dla przycisku SW2.
 8. Miganie wyświetlaczem może odbywać się poprzez:
