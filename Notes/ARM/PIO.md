@@ -19,6 +19,7 @@ Do rejestru `PIO_ODSR` można bezpośrednio wpisywać wartość linii (umożliwi
 Stan każdej linii I/O może zostac odczytany poprzez rejestr `PIO_PDSR` (Pin Data Status Register). Zawiera on stan danej linii nie zależnie od jej konfiguracji. Aby odczytać wartość z tego rejestru, zegar kontrolera PIO musi zostać aktywowany (wpisanie wartosci do `PMC_PCER`).
 
 # Rejestry - podsumowanie
+**Tabela ze wszystkimi rejstrami PIO -> str. 227 w dokumentacji**
 - konfiguracja zegara:
   - `PMC_PCER` - włączenie zegara dla odpowiedniego peryferium, bit 2 (PID2) zegar dla `PIOA`, bit 3 (PID3), zegar dla `PIOB`
   - `PMC_PCDR` - wyłączenie zegara dla odpowiedniego peryferium
@@ -49,13 +50,13 @@ Miganie ekranem LCD przy naciśnięciu przycisku SW1 i SW2
 ## Rozwiązanie
 ![Schemat](./img/SAM7-EX256_Rev_C-sch-1.jpg)
 
-1. Numery linii do których podłączone są przyciski SW1 i SW2 są zaznaczone na schemacie. SW1 - linia 70 (pin `PB24`), SW2 - linia 71 (pin `PB25`). LCD jest podłączone do linii 65 (pin 20). **Linie konfiguruje się według numeru pinu a nie linii**
+1. Numery pinów do których podłączone są przyciski SW1 i SW2 są zaznaczone na schemacie. SW1 - pin 70 (linia `PB24`), SW2 - pin 71 (linia `PB25`). LCD jest podłączone do pinu 65 (linia `PB20`). **Linie konfiguruje się według numeru linii a nie pinu**
 2. Aby mieć możliwość konfiguracji linii jako wyjścia należy załączyć zegar dla `PIOB` -> `PMC_PCER = 1 << 3`, gdzie 3 to numer bitu `PIOB`, str. 30 w dokumentacji
-3. Skonfigurowanie pinów `PB24`, `PB25` i `PB20` jako linii I/O -> `PIOB_PER = 1 << 24 | 1 << 25 | 1 << 20` 
-4. Do linii `PB24` i `PB25` podłączone są przyciski więc chcemy żeby te linie były skonfigurowane jako wejścia -> `PIO_ODR = 1 << 24 | 1 << 25`
+3. Skonfigurowanie linii `PB24`, `PB25` i `PB20` jako linii I/O -> `PIOB_PER = 1 << 24 | 1 << 25 | 1 << 20` 
+4. Do linii `PB24` i `PB25` podłączone są przyciski więc chcemy żeby te linie były skonfigurowane jako wejścia -> `PIO_ODR = 1 << 24 | 1 << 25`. To chyba jest zbędne bo linie po resecie domyślnie są ustawione jako wejścia ale nie mam pewności więc lepiej to mimo wszystko ustawić ręcznie.
 5. Do linii `PB20` podłączony jest LCD którego ekranem mamy migać więc `PB20` musi być skonfigurowany jako wyjście -> `PIO_OER = 1 << 20`
 6. **Koniec konfiguracji, teraz możemy nasłuchiwać w pętli naciśnięć przycisków**
-7. Odczytanie wartości linii do których podłączone są przyciski odbywa się poprzez rejestr `PIOB_PDSR`. Naciśnięcie przycisku SW1 jest sygnalizowane stanem wysokim na bicie nr 24 w `PIOB_PDSR` a więc warunek `PIOB_PDSR & (1 << 24)` będzie `true` gdy przycisk zostanie naciśnięty.
+7. Odczytanie wartości linii do których podłączone są przyciski odbywa się poprzez rejestr `PIOB_PDSR`. Naciśnięcie przycisku SW1 jest sygnalizowane stanem wysokim na bicie nr 24 w `PIOB_PDSR` a więc warunek `PIOB_PDSR & (1 << 24)` będzie `true` gdy przycisk zostanie naciśnięty. Analogicznie dla przycisku SW2.
 8. Miganie wyświetlaczem może odbywać się poprzez:
    1. ustawianie bitu 20 na zmianę w rejestrach `PIOB_SODR` i `PIOB_CODR` -> `PIOB_SODR = 1 << 20` i `PIOB_CODR = 1 << 20`
    2. zezwolenie na bezpośredni zapis do rejestru `PIOB_ODSR` poprzez ustawienie bitu 20 w rejestrze `PIOB_OWER` a następnie negowanie bitu 20 w `PIOB_ODSR` -> `PIOB_OWER = 1 << 20; PIOB_ODSR ^= 1 << 20;` 
