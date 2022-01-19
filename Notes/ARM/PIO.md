@@ -9,7 +9,7 @@ Power Management Controller kontroluje zegar kontrolera `PIO` w celu oszczędzan
 Rezystor podciągający może zostać załączony poprzez wpisanie wartości do rejestru `PIO_PUER` (Pull-up Enable Register) i wyłączony poprzez wpisanie wartości do `PIO_PUDR` (Pull-up Disable Resistor). Wpisanie wartości do tych rejestrów ustawia lub zeruje odpowiedni bit w `PIO_PUSR` (Pull-up Status Register). Wartośc 1 w tym rejstrze oznacza że rezystor podciągający jest wyłączony, wartość 0 oznacza że jest załączony.
 
 # Ustawienie funkci pinu
-Kiedy pin jest multipleksowany przez jedno albo dwa urządzenia peryferyjne, wybór odpowiedniego urządzenia jest kontrolowany przez rejestr `PIO_PER` (PIO Enable Register) i `PIO_PDR` (PIO Disable Register), które ustawiają wartość w rejstrze `PIO_PSR` (PIO Status Register). Wartość 0 odpowiedniego bitu w `PIO_PSR` oznacza że pin (odpowiadający temu bitowi) jest kontrolowany przez urządzenie peryferyjne. Wartosć 1 oznacza że pin jest kontrolowany przez kontroler PIO. Jeżeli pin nie jest multipleksowany przez żadne urządzenie peryferyjne wpisywanie wartości do PIO_PER i PIO_PDR nie przynosi żadnego rezultatu, bit w `PIO_PSR` będzie zawsze ustawiony na 1. Po resecie, zazwyczaj linie I/O są kontrolowane przez kontorler PIO.
+Kiedy pin jest multipleksowany przez jedno albo dwa urządzenia peryferyjne, wybór odpowiedniego urządzenia jest kontrolowany przez rejestr `PIO_PER` (PIO Enable Register) i `PIO_PDR` (PIO Disable Register), które ustawiają wartość w rejstrze `PIO_PSR` (PIO Status Register). Wartość 0 odpowiedniego bitu w `PIO_PSR` oznacza że pin (odpowiadający temu bitowi) jest kontrolowany przez urządzenie peryferyjne. Wartosć 1 oznacza że pin jest kontrolowany przez kontroler PIO. Jeżeli pin nie jest multipleksowany przez żadne urządzenie peryferyjne wpisywanie wartości do `PIO_PER` i `PIO_PDR` nie przynosi żadnego rezultatu, bit w `PIO_PSR` będzie zawsze ustawiony na 1. Po resecie, zazwyczaj linie I/O są kontrolowane przez kontorler PIO.
 
 # Output Control
 Kiedy linie I/O są kontrolowane przez kontroler PIO, mogą być one ustawione jako wyjście. Ustawienie linii jako wyjścia odbywa się poprzez rejestr `PIO_OER` (Output Enable Register), `PIO_ODR` służy do wyłączenia funkcji wyjścia na linii. Wartość 0 w `PIO_OSR` (Output Status Register) oznacza że odpowiednia linia może być wykorzystywana tylko jako wejście. Wartość 1 oznacza że linia pełni również rolę wyjścia. Stan linii która została skonfigurowana jako wyjście może zostać ustawiony poprzez rejestry `PIO_SODR` (Set Output Data Register) i `PIO_CODR` (Clear Output Data Register). Rejestry te modyfikują rejestr `PIO_ODSR` (Output Data Status Register).  
@@ -41,6 +41,25 @@ Stan każdej linii I/O może zostac odczytany poprzez rejestr `PIO_PDSR` (Pin Da
   - `PIOx_OWSR` - rejestr statusowy określający czy dla danej linii jest włączona możliwość bezpośredniego zapisu stanu dla rejestru `PIOx_ODSR`
 - Odczyt stanu pin'u
   - `PIOx_PDSR` - rejestr statusowy, zawiera aktualny stan danej linii nie zależnie od jej konfiguracji, wartość 0 - linia w stanie niskim, 1 - linia w stanie wysokim. **Aby odczytać stan linii z tego rejestru zegar PIO Controller musi być aktywny.**. W przeciwnym wypadku wartości w rejestrze `PIOx_PDSR` odpowiadając stanom linii w momencie gdy zegar został wyłączony.
+
+# Konfiguracja
+## Zadanie
+Miganie ekranem LCD przy naciśnięciu przycisku SW1 i SW2
+
+## Rozwiązanie
+![Schemat](./img/SAM7-EX256_Rev_C-sch-1.jpg)
+
+1. Numery linii do których podłączone są przyciski SW1 i SW2 są zaznaczone na schemacie. SW1 - linia 70 (pin `PB24`), SW2 - linia 71 (pin `PB25`). LCD jest podłączone do linii 65 (pin 20). **Linie konfiguruje się według numeru pinu a nie linii**
+2. Aby mieć możliwość konfiguracji linii jako wyjścia należy załączyć zegar dla `PIOB` -> `PMC_PCER = 1 << 3`, gdzie 3 to numer bitu `PIOB`, str. 30 w dokumentacji
+3. Skonfigurowanie pinów `PB24`, `PB25` i `PB20` jako linii I/O -> `PIOB_PER = 1 << 24 | 1 << 25 | 1 << 20` 
+4. Do linii `PB24` i `PB25` podłączone są przyciski więc chcemy żeby te linie były skonfigurowane jako wejścia -> `PIO_ODR = 1 << 24 | 1 << 25`
+5. Do linii `PB20` podłączony jest LCD którego ekranem mamy migać więc `PB20` musi być skonfigurowany jako wyjście -> `PIO_OER = 1 << 20`
+6. **Koniec konfiguracji, teraz możemy nasłuchiwać w pętli naciśnięć przycisków**
+7. Odczytanie wartości linii do których podłączone są przyciski odbywa się poprzez rejestr `PIOB_PDSR`. Naciśnięcie przycisku SW1 jest sygnalizowane stanem wysokim na bicie nr 24 w `PIOB_PDSR` a więc warunek `PIOB_PDSR & (1 << 24)` będzie `true` gdy przycisk zostanie naciśnięty.
+8. Miganie wyświetlaczem może odbywać się poprzez:
+   1. ustawianie bitu 20 na zmianę w rejestrach `PIOB_SODR` i `PIOB_CODR` -> `PIOB_SODR = 1 << 20` i `PIOB_CODR = 1 << 20`
+   2. zezwolenie na bezpośredni zapis do rejestru `PIOB_ODSR` poprzez ustawienie bitu 20 w rejestrze `PIOB_OWER` a następnie negowanie bitu 20 w `PIOB_ODSR` -> `PIOB_OWER = 1 << 20; PIOB_ODSR ^= 1 << 20;` 
+
 ```c
 
 void time_delay(int ms) { 
@@ -66,9 +85,10 @@ void PIO_clock_enable(int pio_pcer, int a_b) {
    }
 }
 
-// Funkcja załączająca kontrolę nad wybranym pinem dla kontorlera PIO
+// Funkcja załączająca kontrolę nad wybranym pinem dla kontorlera PIO (konfiguracja 
+// pinu jako lini I/O)
 // params:
-//      line_no     numer linii dla której kontrola PIO ma być włączona/wyłączona
+//      line_no     numer linii która ma być ustawiona jako I/O
 //      ena         1 - włącz kontrolę, 2 - wyłącz kontrolę
 void PIO_enable(int line_no, int ena) {
   if (ena==1) {
@@ -131,7 +151,7 @@ unsigned int SW_wait(int SW_no) {
 
 int main(void) {
   PIO_clock_enable(1, 1);   // załączenie zegara na PIOB
-  PIO_enable(20, 1);        // "przekazanie" kontroli nad pinami 20, 24, 25 do PIO controller
+  PIO_enable(20, 1);        // ustawienie linii 20, 24, 25 jako I/O.
   PIO_enable(24, 1);
   PIO_enable(25, 1);
   PIO_output_enable(20, 1); // pin 20 (LCD) jako wyjście, piny 24 i 25 (przyciski) jako wejście 
