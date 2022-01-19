@@ -1,25 +1,25 @@
 # PIO
-Mikrokontroler AT81SAM7X256 posiada dwa kontrolery `PIO` (`PIOA` i `PIOB`). Zadaniem każdego z kontrolerów jest multipleksowanie zestawu wyprowadzeń urządzeń peryferyjnych. Każdy kontroler steruje 32 liniami. Każda linia może być przypisana do jednego z dwóch urzadzeń peryferyjnych `A` lub `B`. Lub też działać jako uniwersalne wyjście/wejście.  
-Wszystkie linie I/O (od `PA0` do `PA30` i `PB0` do `PB30`) zawierają programowalny rezystor podciągający. Ustawianie tego rezystora jest realizowane niezależnie dla każdej linii I/O poprzez kontorler PIO.  
+Mikrokontroler AT81SAM7X256 posiada dwa kontrolery `PIO` (`PIOA` i `PIOB`). Zadaniem każdego z kontrolerów jest multipleksowanie zestawu wyprowadzeń urządzeń peryferyjnych. Każdy kontroler steruje 32 liniami. Każda linia może być przypisana do jednego z dwóch urządzeń peryferyjnych `A` lub `B`. Lub też działać jako uniwersalne wyjście/wejście.  
+Wszystkie linie I/O (od `PA0` do `PA30` i `PB0` do `PB30`) zawierają programowalny rezystor podciągający. Ustawianie tego rezystora jest realizowane niezależnie dla każdej linii I/O poprzez kontroler PIO.  
 Po zresetowaniu wszystkie linie I/O są automatycznie skonfigurowane jako wejścia z załączonym rezystorem podciągającym.  
   
 Power Management Controller kontroluje zegar kontrolera `PIO` w celu oszczędzania energii. Konfiguracja linii I/O nie wymaga aby zegar kontrolera `PIO` był włączony ale jeżeli zegar jest wyłączony niektóre funkcje kontrolera `PIO` są wyłączone. **Odczytanie poziomu pinu wymaga aby zegar był włączony. Po resecie zegar `PIO` jest domyślnie wyłączony.** 
 
 # Rejestry kontroli rezystora podciągającego
-Rezystor podciągający może zostać załączony poprzez wpisanie wartości do rejestru `PIO_PUER` (Pull-up Enable Register) i wyłączony poprzez wpisanie wartości do `PIO_PUDR` (Pull-up Disable Resistor). Wpisanie wartości do tych rejestrów ustawia lub zeruje odpowiedni bit w `PIO_PUSR` (Pull-up Status Register). Wartośc 1 w tym rejstrze oznacza że rezystor podciągający jest wyłączony, wartość 0 oznacza że jest załączony.
+Rezystor podciągający może zostać załączony poprzez wpisanie wartości do rejestru `PIO_PUER` (Pull-up Enable Register) i wyłączony poprzez wpisanie wartości do `PIO_PUDR` (Pull-up Disable Resistor). Wpisanie wartości do tych rejestrów ustawia lub zeruje odpowiedni bit w `PIO_PUSR` (Pull-up Status Register). Wartość 1 w tym rejestrze oznacza że rezystor podciągający jest wyłączony, wartość 0 oznacza że jest załączony.
 
-# Ustawienie funkci pinu
-Kiedy pin jest multipleksowany przez jedno albo dwa urządzenia peryferyjne, wybór odpowiedniego urządzenia jest kontrolowany przez rejestr `PIO_PER` (PIO Enable Register) i `PIO_PDR` (PIO Disable Register), które ustawiają wartość w rejstrze `PIO_PSR` (PIO Status Register). Wartość 0 odpowiedniego bitu w `PIO_PSR` oznacza że pin (odpowiadający temu bitowi) jest kontrolowany przez urządzenie peryferyjne. Wartosć 1 oznacza że pin jest kontrolowany przez kontroler PIO. Jeżeli pin nie jest multipleksowany przez żadne urządzenie peryferyjne wpisywanie wartości do `PIO_PER` i `PIO_PDR` nie przynosi żadnego rezultatu, bit w `PIO_PSR` będzie zawsze ustawiony na 1. Po resecie, zazwyczaj linie I/O są kontrolowane przez kontorler PIO.
+# Ustawienie funkcji pinu
+Kiedy pin jest multipleksowany przez jedno albo dwa urządzenia peryferyjne, wybór odpowiedniego urządzenia jest kontrolowany przez rejestr `PIO_PER` (PIO Enable Register) i `PIO_PDR` (PIO Disable Register), które ustawiają wartość w rejestrze `PIO_PSR` (PIO Status Register). Wartość 0 odpowiedniego bitu w `PIO_PSR` oznacza że pin (odpowiadający temu bitowi) jest kontrolowany przez urządzenie peryferyjne. Wartość 1 oznacza że pin jest kontrolowany przez kontroler PIO. Jeżeli pin nie jest multipleksowany przez żadne urządzenie peryferyjne wpisywanie wartości do `PIO_PER` i `PIO_PDR` nie przynosi żadnego rezultatu, bit w `PIO_PSR` będzie zawsze ustawiony na 1. Po resecie, zazwyczaj linie I/O są kontrolowane przez kontroler PIO.
 
 # Output Control
 Kiedy linie I/O są kontrolowane przez kontroler PIO, mogą być one ustawione jako wyjście. Ustawienie linii jako wyjścia odbywa się poprzez rejestr `PIO_OER` (Output Enable Register), `PIO_ODR` służy do wyłączenia funkcji wyjścia na linii. Wartość 0 w `PIO_OSR` (Output Status Register) oznacza że odpowiednia linia może być wykorzystywana tylko jako wejście. Wartość 1 oznacza że linia pełni również rolę wyjścia. Stan linii która została skonfigurowana jako wyjście może zostać ustawiony poprzez rejestry `PIO_SODR` (Set Output Data Register) i `PIO_CODR` (Clear Output Data Register). Rejestry te modyfikują rejestr `PIO_ODSR` (Output Data Status Register).  
-Do rejestru `PIO_ODSR` można bezpośrednio wpisywać wartość linii (umożliwia to między innymi negowanie stanu linii bez potrzeby wcześniejszego odczytu i sprawdzenia wartości linii) pod warunskie że odpowiadający danej linii bit jest ustawiony w rejestrze `PIO_OWSR` (Output Write Status Register). Ustawienie tego bitu odbywa się poprzez rejestr `PIO_OWER` (Output Write Enable Register) a zerowanie poprzez `PIO_OWDR` (Output Write Disable Register). Po resecie wartość w rejestrze `PIO_OWSR` jest ustawiona na `0x0` (możliwość bezpośredniej modyfikacji `PIO_ODSR` jest wyłączona dlda wszystkich linii).
+Do rejestru `PIO_ODSR` można bezpośrednio wpisywać wartość linii (umożliwia to między innymi negowanie stanu linii bez potrzeby wcześniejszego odczytu i sprawdzenia wartości linii) pod warunkiem że odpowiadający danej linii bit jest ustawiony w rejestrze `PIO_OWSR` (Output Write Status Register). Ustawienie tego bitu odbywa się poprzez rejestr `PIO_OWER` (Output Write Enable Register) a zerowanie poprzez `PIO_OWDR` (Output Write Disable Register). Po resecie wartość w rejestrze `PIO_OWSR` jest ustawiona na `0x0` (możliwość bezpośredniej modyfikacji `PIO_ODSR` jest wyłączona dla wszystkich linii).
 
 # Inputs
-Stan każdej linii I/O może zostac odczytany poprzez rejestr `PIO_PDSR` (Pin Data Status Register). Zawiera on stan danej linii nie zależnie od jej konfiguracji. Aby odczytać wartość z tego rejestru, zegar kontrolera PIO musi zostać aktywowany (wpisanie wartosci do `PMC_PCER`).
+Stan każdej linii I/O może zostać odczytany poprzez rejestr `PIO_PDSR` (Pin Data Status Register). Zawiera on stan danej linii niezależnie od jej konfiguracji. Aby odczytać wartość z tego rejestru, zegar kontrolera PIO musi zostać aktywowany (wpisanie wartosci do `PMC_PCER`).
 
 # Rejestry - podsumowanie
-**Tabela ze wszystkimi rejstrami PIO -> str. 227 w dokumentacji**
+**Tabela ze wszystkimi rejestrami PIO -> str. 227 w dokumentacji**
 - konfiguracja zegara:
   - `PMC_PCER` - włączenie zegara dla odpowiedniego peryferium, bit 2 (PID2) zegar dla `PIOA`, bit 3 (PID3), zegar dla `PIOB`
   - `PMC_PCDR` - wyłączenie zegara dla odpowiedniego peryferium
@@ -35,13 +35,13 @@ Stan każdej linii I/O może zostac odczytany poprzez rejestr `PIO_PDSR` (Pin Da
 - ustawianie stanu linii:
   - `PIOx_SODR` - ustawienie stanu wysokiego na linii
   - `PIOx_CODR` - ustawienie stanu niskiego na linii
-  - `PIOx_ODSR` - rejestr statsusowy określający stan danej linii, wartość 0 - stan niski na linii, wartość 1 - stan wysoki na linii. Do tego rejstru (po skonfigurowaniu rejestru `PIO_OWSR`) można również bezpośrednio wpisywać wartości.
+  - `PIOx_ODSR` - rejestr statusowy określający stan danej linii, wartość 0 - stan niski na linii, wartość 1 - stan wysoki na linii. Do tego rejestru (po skonfigurowaniu rejestru `PIO_OWSR`) można również bezpośrednio wpisywać wartości.
 - konfiguracja możliwość bezpośredniego zapisu do rejestru `PIOx_ODSR`:
   - `PIOx_OWER` - ustawienie możliwości zapisu do `PIOx_ODSR` dla danej linii
   - `PIOx_OWDR` - wyłączenie możliwości zapisu do `PIOx_ODSR` dla danej linii
   - `PIOx_OWSR` - rejestr statusowy określający czy dla danej linii jest włączona możliwość bezpośredniego zapisu stanu dla rejestru `PIOx_ODSR`
 - Odczyt stanu pin'u
-  - `PIOx_PDSR` - rejestr statusowy, zawiera aktualny stan danej linii nie zależnie od jej konfiguracji, wartość 0 - linia w stanie niskim, 1 - linia w stanie wysokim. **Aby odczytać stan linii z tego rejestru zegar PIO Controller musi być aktywny.**. W przeciwnym wypadku wartości w rejestrze `PIOx_PDSR` odpowiadając stanom linii w momencie gdy zegar został wyłączony.
+  - `PIOx_PDSR` - rejestr statusowy, zawiera aktualny stan danej linii niezależnie od jej konfiguracji, wartość 0 - linia w stanie niskim, 1 - linia w stanie wysokim. **Aby odczytać stan linii z tego rejestru zegar PIO Controller musi być aktywny.**. W przeciwnym wypadku wartości w rejestrze `PIOx_PDSR` odpowiadając stanom linii w momencie gdy zegar został wyłączony.
 
 # Konfiguracja
 ## Zadanie

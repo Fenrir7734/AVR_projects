@@ -1,9 +1,9 @@
 # ADC
 - `ADC` umożliwia konwersję 8 linii analogowych
-- Możliwość tylko jednej konwersji jednocześnie, jeżeli chcemy wykonać konwersję napięcia z kilku linii, konwersje te będą musiały zostać wykonane pokolei.
+- Możliwość tylko jednej konwersji jednocześnie, jeżeli chcemy wykonać konwersję napięcia z kilku linii, konwersje te będą musiały zostać wykonane po kolei.
 - Po zakończeniu jednej konwersji, `ADC` musi zostać uruchomiony od nowa.
 - Wartość napięcia możliwego do konwersji zawiera się pomiędzy 0V (gnd) a napięciem przyłożonym do pinu ADVREF.
-- `ADC` może przeprowadzić konwersję napięcia w dwuch rozdzielczościach, 8 i 10 bitowej. Aby zmienić rozdzielczość na 8 bitową należy ustawić bit `LOWERS` w rejestrze `ADC_MR`
+- `ADC` może przeprowadzić konwersję napięcia w dwóch rozdzielczościach, 8 i 10 bitowej. Aby zmienić rozdzielczość na 8 bitową należy ustawić bit `LOWERS` w rejestrze `ADC_MR`
 - zegar kontrolera ADC zawsze działa. *Setting SYSC and ADC bits in the clock set/clear registers of the PMC has no effect. The System Controller and ADC are continuously clocked.*
 - Wyniki konwersji przechowywane są w dedykowanych rejestrach `ACD_CDRx` gdzie x oznacza numer kanału odpowiadającego danemu rejestrowi. Dodatkowo wynik ostatniej konwersji na jednym z aktywnych kanałów przechowywany jest w rejestrze `ADC_LCDR`. Kiedy konwersja jest zakończona, bit `EOCx` w rejestrze `ADC_SR` jest ustawiany. Jednocześnie ustawiny jest bit `DRDY` który oznacza, że w rejestrze `ADC_LCDR` zapisana jest wartość z ostatniej konwersji.
 - Odczytanie w programie wartości z rejestru `ADC_CDRx` kasuje bit `EOCx` w rejestrze `ADC_SR`. Podobnie odczytanie wartości z rejestru `ADC_LCDR` powoduje wyzerowanie bitu `DRDY`.
@@ -18,7 +18,7 @@
   - `START` - wpisanie 1 powoduje rozpoczęcie konwersji analogowo cyfrowej
 - `ADC_MR` - rejestr do konfiguracji trybów przetwornika
   - `LOWRES` - wartość 0 - 10 bitowa rozdzielczość przetwornika, wartość 1 - 8 bitowa rozdzielczość
-  - `PRESCAL` - ustawienine preskalera dla przetwornika ADCClock = MCK / ( (PRESCAL+1) * 2 )
+  - `PRESCAL` - ustawienie preskalera dla przetwornika ADCClock = MCK / ( (PRESCAL+1) * 2 )
   - `STARTUP` - Startup Time = (STARTUP+1) * 8 / ADCClock
   - `SHTIM` - Sample & Hold Time = SHTIM/ADCClock
 - `ADC_CHER` - rejestr umożliwiający aktywowanie jednego z 8 kanałów przetwornika.
@@ -28,10 +28,10 @@
   - `OVREx` - wartość 1 - error spowodowany zakończeniem konwersji nowego sygnału gdy flaga `EOCx` pozostawała w stanie wysokim.
   - `DRDY` - wartość 0 - żadna konwersja się nie zakończyła od czasu ostatniego odczytu `ADC_LCDR`, wartość 1 - przynajmniej jedna konwersja się zakończyła od czasu ostatniego odczytu `ADC_LCDR`
   - `GOVRE` - wartość 1 - error spowodowany zakończenie konwersji nowego sygnału gdy flaga `DRDY` pozostawała w stanie wysokim. 
-- `ADC_LCDR` - rejestr umożliwiający odczyt wyniku ostatniej konwersji analogowo cyfrowej. Wartość ta jest nadpisywana w momęcie zakończenia kolejnej konwersji.
-- `ADC_CDRx` - rejestr umożliwiający odczyt wyniku konwersji analogowo cyfrowej dla kanału x. Wartośc do tego rejestru jest wpisywana tylko gdy kanał x jest aktywny.
-- `ADC_IER` - rejest umożliwiający aktywację przerwań od `ADC`
-- `ADC_IDR` - rejest umożliwiający dezaktywację przerwań od `ADC`
+- `ADC_LCDR` - rejestr umożliwiający odczyt wyniku ostatniej konwersji analogowo cyfrowej. Wartość ta jest nadpisywana w momencie zakończenia kolejnej konwersji.
+- `ADC_CDRx` - rejestr umożliwiający odczyt wyniku konwersji analogowo cyfrowej dla kanału x. Wartość do tego rejestru jest wpisywana tylko gdy kanał x jest aktywny.
+- `ADC_IER` - rejestr umożliwiający aktywację przerwań od `ADC`
+- `ADC_IDR` - rejestr umożliwiający dezaktywację przerwań od `ADC`
 
 ```c
 int main (){

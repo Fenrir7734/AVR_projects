@@ -4,7 +4,7 @@ Jeżeli MCK = 32MHz, wartość `CPIV` będzie inkrementowana 2 miliony razy na s
 
 `PIT` może być włączony/wyłączony poprzez ustawienie flagi `PITEN` w rejestrze `PIT_MR` (domyślnie wyłączony). Ustawienie `PITEN` ma efekt tylko jeżeli wartość licznika `CPIV` jest równa 0. Po osiągnięciu przez `CPIV` wartości z rejestru `PIV` (compare match) `PITEN` jest resetowany i licznik przestaje liczyć. `PIT` rozpocznie liczenie ponownie tylko gdy `PITEN` zostanie ustawiony ponownie.  
 
-Odczytanie wartości `CPIV` i `PICNT` poprzez rejestr `PIT_PIVR` powoduje zresetowanie wartosci rejestru zliczającego licznika `PICNT` i wyzerowanie flagi `PITS` (sygnalizującej przerwanie). Odczytanie wartości `PIT` (licznika `CPIV` i sumatora `PICNT`) z rejestru `PIT_PIIR` nie powoduje resetowania wartości licznika `PIT`.  
+Odczytanie wartości `CPIV` i `PICNT` poprzez rejestr `PIT_PIVR` powoduje zresetowanie wartości rejestru zliczającego licznika `PICNT` i wyzerowanie flagi `PITS` (sygnalizującej przerwanie). Odczytanie wartości `PIT` (licznika `CPIV` i sumatora `PICNT`) z rejestru `PIT_PIIR` nie powoduje zresetowania wartości licznika `PIT`.  
 
 Przy założeniu że MCK = 32MHZ można obliczyć że najdłuższy możliwy okres zliczania licznika wynosi 0.524588s
 ```
@@ -15,26 +15,26 @@ T = max / 2MHz = 1_048_576 / 2_000_000 = 0.524588s
 ```
 
 # Timer Counter 0
-TC składa się z trzech identycznych 16 bitowych kanałów. Każdy z tych kanałów może być konfigurowany niezależnie i pracować w jednym z trybów - cpature mode lub waveform mode. Ponadto TC0 może być inkrementowany z różnymi częstotliwościami pochodzącymi z wewnętrznego źródła taktowania mikroprecesora (MCK) bądź sygnału doprowadzonego do wybranych pinów mikrokontrolera (funckja licznika). Precyzyjne odliczenie odcinka czasu wymaga zmiany domyślnego trybu przepełnienia na tryb porównania z wartością `RC`. Zmiana trybu na RC compare możliwa jest poprzez ustawienie bitu `CPCTRG` w rejestrze `TC0_CMR`. Wartość do porównania musi zostać wprowadzona do rejestru `TC0_RC`.  
+TC składa się z trzech identycznych 16 bitowych kanałów. Każdy z tych kanałów może być konfigurowany niezależnie i pracować w jednym z trybów - capture mode lub waveform mode. Ponadto TC0 może być inkrementowany z różnymi częstotliwościami pochodzącymi z wewnętrznego źródła taktowania mikroprocesora (MCK) bądź sygnału doprowadzonego do wybranych pinów mikrokontrolera (funkcja licznika). Precyzyjne odliczenie odcinka czasu wymaga zmiany domyślnego trybu przepełnienia na tryb porównania z wartością `RC`. Zmiana trybu na RC compare możliwa jest poprzez ustawienie bitu `CPCTRG` w rejestrze `TC0_CMR`. Wartość do porównania musi zostać wprowadzona do rejestru `TC0_RC`.  
 Licznik `TC0` jest 16-bitowy co oznacza że maksymalna wartość możliwa do obliczenia to (2^16) - 1 = 65535.  
 W trybie przepełnienia wartość rejestru `TC0_RC` nie ma znaczenia dla pracy licznika. Jego zawartość jest resetowana jedynie poprzez przekroczenie wartości maksymalnej. Przepełnienia są sygnalizowane poprzez ustawienie flagi `COFVS` w rejestrze `TC0_SR`. Odczytanie wartości licznika odbywa się poprzez rejestr `TC_CV`.  
-W trybbie RC compare licznik jest inkrementowany aż do osiągnięcia wartości równej tej wprowadzonej do rejestru `TC0_RC` co jest równoznaczne z resetowaniem wartości licznika. Doliczenie do wartości `RC` jest sygnalizowane przez ustawienie flagi `CPCS` w rejestrze `TC0_SR`.  
+W trybie RC compare licznik jest inkrementowany aż do osiągnięcia wartości równej tej wprowadzonej do rejestru `TC0_RC` co jest równoznaczne z resetowaniem wartości licznika. Doliczenie do wartości `RC` jest sygnalizowane przez ustawienie flagi `CPCS` w rejestrze `TC0_SR`.  
 Do konfiguracji licznika służy rejestr `TC0_CMR` oraz `TC0_CCR`. 
 
 # Rejestry - podsumowanie
-**Tabela ze wszystkimi rejstrami PIT -> str. 77 w dokumentacji**
-**Tabela ze wszystkimi rejstrami TC -> str. 389 w dokumentacji**
+**Tabela ze wszystkimi rejestrami PIT -> str. 77 w dokumentacji**
+**Tabela ze wszystkimi rejestrami TC -> str. 389 w dokumentacji**
 
 - `PIT_PIVR` (Periodic Interval Timer Value Register) - czytanie tego rejestru czyści `PITS` i `PIT_SR`
   - `CPIV` - obecna wartość licznika
   - `PICNT` - liczba okresów `CPIV` od czasu ostatniego odczytu `PIT_PIVR`.
 - `PIT_MR` - Rejestr umożliwiający zdefiniowanie wartości do której będzie zliczał 20-bitowy licznik `CPIV`. 
-  - `PIV` - 20bitów do których moża wpisać wartość do której będzie zliczał licznik `CPIV`
+  - `PIV` - 20 bitów do których można wpisać wartość do której będzie zliczał licznik `CPIV`
   - `PITEN` - Flaga za pomocą której można włączyć licznik `PIT`. Gdy wartość `CPIV` zrówna się z `PIV` flaga `PITEN` jest resetowana (`PIT` jest wyłączany).
-  - `PITIEN` - Flaga umożliwiająca załączenine funkcji generacji przerwań przez `PIT`
+  - `PITIEN` - Flaga umożliwiająca włączenie funkcji generacji przerwań przez `PIT`
 - `PIT_SR` - Rejestr statusowy licznika `PIT`
   - `PITS` - wartość 0 - `PIT` nie doliczył do wartości `PIV` od czasu ostatniego odczytu rejestru `PIT_PIVR`. Wartość 1 - `PIT` doliczył od `PIV` od ostatniego odczytu rejestru `PIT_PIVR`.
-- `PIT_PIVR` - Relestr umożliwiający odczyt `CPIV` i `PICNT`. Czytanie z tego rejestru powoduje zresetowanie bitu `PITS` w `PIT_SR` i wartości `PICNT`
+- `PIT_PIVR` - Rejestr umożliwiający odczyt `CPIV` i `PICNT`. Czytanie z tego rejestru powoduje zresetowanie bitu `PITS` w `PIT_SR` i wartości `PICNT`
 - `PIT_PIIR` - Rejestr umożliwiający odczyt `CPIV` i `PICNT` bez ich zerowania
 - `TC_CCR` - Rejestr do włączania/wyłączania zegara timera `TC`
   - `CLKEN` - wartość 1 włącza zegar timera `TC`
@@ -44,12 +44,12 @@ Do konfiguracji licznika służy rejestr `TC0_CMR` oraz `TC0_CCR`.
   - `CLKI` - wartość 0 - licznik jest inkrementowany przy krawędzi rosnącej zegara, wartość 1 - inkrementowany przy krawędzi opadającej
   - `CPCTRG` - wartość 0 - wystąpienie RC Compare nie ma efektu na licznika, wartość 1 - wystąpienie RC Compare powoduje reset licznika i wystartowanie zegara.
   - `WAVE` - wartość 0 - capture mode jest włączony, wartość 1 - waveform mode jest włączony
- - `TCx_CV` - rejest przechowujący wartość timera `TCx`, służy do odczytu tej wartości.
+ - `TCx_CV` - rejestr przechowujący wartość timera `TCx`, służy do odczytu tej wartości.
  - `TCx_SR` - Rejestr statusowy timera `TCx`. **Odczyt tego rejestru powoduje jego wyzerowanie.**
    - `COVFS` - wartość 0 - przepełnienie nie nastąpiło od ostatniego odczytu `TCx_SR`. wartość 1 - przepełnienie nastąpiło od ostatniego odczytu `TCx_SR`
    - `CLKSTA` - wartość 0 - zegar jest wyłączony, wartość 1 - zegar jest włączony.
    - `CPCS` - wartość 0 - RC Compare nie wystąpiło od ostatniego odczytu `TCx_SR`, wartość 1 - RC Compare nastąpiło od ostatniego odczytu `TCx_SR`
-- `TCx_IER` - rejestr w któym można uaktywnić przerwania dla timera `TCx`
+- `TCx_IER` - rejestr w którym można uaktywnić przerwania od timera `TCx`
   - `COVFS` - wpisanie 1 uaktywnia przerwanie od przepełnienia
   - `CPCS` - wpisanie 1 uaktywnia przerwanie od RC Compare
 - `TCx_IDR` - rejestr w którym można dezaktywować przerwania od timera `TCx`
@@ -67,7 +67,7 @@ uruchomienie timera w trybie przepełnienia, z częstotliwością inkrementacji 
 2. Konfiguracja `PB11` jako linii I/O a następnie jako wyjścia -> `PIOB_PER = 1 << 11; PIOB_OER = 1 << 11;`
 3. **Na czas konfiguracji licznika należy go wyłączyć** -> `TC0_CCR = 1 << 1` gdzie bit nr 1 to flaga `CLKDIS`. Ustawienie jej na 1 powoduje zatrzymanie inkrementacji licznika
 4. Wyzerowanie flag w rejestrze statusowym licznika `TC0_SR`, rejestr ten jest zerowany przy każdym odczycie a więc wystarczy -> `TC0_SR;`
-5. Ustawienie prescalera -> `TC0_CMR = 3`, wartość 3 odpowiada preskalerowi MCK/128. Rejestr `TC0_CMR` jest typu Read-write wiec wpisanie do niego wartości 3 resetuje wszystkie pozostałe bit w tym rejestrze. Tym sposobem od razu ustawiamy flagę `WAVE` na 0, czyli tryb pracy licznika na RC compare ale równocześnie zerowana jest flaga `CPCTRG` -> RC Compare nie ma efektu na timer czyli timer działa w trybie overflow. Podsumowując żeby włączyć tryb overflow w timerze trzeba ustawić prescaler i wyzerować flagi `WAVE` i `CPCTRG`.
+5. Ustawienie prescalera -> `TC0_CMR = 3`, wartość 3 odpowiada preskalerowi MCK/128. Rejestr `TC0_CMR` jest typu Read-write więc wpisanie do niego wartości 3 resetuje wszystkie pozostałe bit w tym rejestrze. Tym sposobem od razu ustawiamy flagę `WAVE` na 0, czyli tryb pracy licznika na RC compare ale równocześnie zerowana jest flaga `CPCTRG` -> RC Compare nie ma efektu na timer czyli timer działa w trybie overflow. Podsumowując żeby włączyć tryb overflow w timerze trzeba ustawić prescaler i wyzerować flagi `WAVE` i `CPCTRG`.
 6. Po zakończeniu konfiguracji trzeba włączyć zegar timera który został wyłączony w punkcie 3 oraz zresetować timer -> `TC0_CCR = 1 << 0 | 1 << 2;`
 7. **Koniec konfiguracji, teraz można nasłuchiwać w pętli przepełnień**
 8. Jeżeli wystąpiło przepełnienie w rejestrze `TC0_SR` zostaje ustawiony bit `COVFS` a więc warunek -> `(TC0_SR & (1 << 0)) == 0` jest `true` w przypadku zaistnienia przepełnienia. **Odczyt TC0_SR powoduje jego zresetowanie**.
@@ -100,6 +100,8 @@ int main() {
 Uruchomienie timera w trybie RC Compare w celu odliczenia interwałów czasu równych 1 sekundę. Co 1 sekundę wyznaczaną przez kolejne setowania flagi porównania z RC (CPCS) następuje zmiana stanu linii wyjściowej PB11. Załozenie: MCK = 64 MHz. W pierwszej kolejności należy zwrócid uwagę, jaki jest wymagany dzielnik częstotliwości w celu osiągnięcia interwałów czasu równych 1 sekundzie.
 
 ## Rozwiązanie
+![Schemat](./img/obliczenia1.png)
+
 1. Konfiguracja linii `PB11` jako wyjścia wymaga załączenia zegara dla `PIOB`, ponadto licznik `TCO` również wymaga załączenia zegara -> `PMC_PCER = 1 << 3 | 1 << 12` gdzie bit nr 3 to zegar dla `PIOB` a 12 zegar dla `TC0`
 2. Konfiguracja `PB11` jako linii I/O a następnie jako wyjścia -> `PIOB_PER = 1 << 11; PIOB_OER = 1 << 11;`
 3. **Na czas konfiguracji licznika należy go wyłączyć** -> `TC0_CCR = 1 << 1` gdzie bit nr 1 to flaga `CLKDIS`. Ustawienie jej na 1 powoduje zatrzymanie inkrementacji licznika
@@ -135,6 +137,21 @@ int main() {
 }
 
 ```
+# Konfiguracja PIT
+Nie jestem tego pewien.
+
+1. Odczyt rejestru `PIT_PIVR` aby wyzerować licznik `PIT`
+2. Może odczyt `PIT_SR` żeby jego też wyzerować? o ile to tak działa
+3. Wpisanie wartości do której ma zliczać `PIT` do rejestru `PIT_MR` (20 bitów `PIV`) -> `PIT_MR = 100000`
+4. Uruchomienie `PIT` poprzez ustawienie flagi `PITEN` w `PIT_MR` -> `PIT_MR |= 1 << 24`
+
+```c
+PIT_PIVR;
+PIT_SR;
+PIT_MR = 100000 | 1 << 24;
+```
+
+# Przerwania
 
 ```c
 // Funkcja uaktywniająca zegar kontrolera PIO
